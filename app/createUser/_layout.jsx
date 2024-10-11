@@ -66,7 +66,7 @@ const Layout = () => {
       </View>
 
       <TouchableOpacity style={[s.button, !btn && s.disabledButton]} onPress={handleNextPress}
-      disabled={!btn}
+      // disabled={!btn}
       >
         <Text style={s.buttonText}>次</Text>
       </TouchableOpacity>
@@ -149,9 +149,9 @@ const s = StyleSheet.create({
     backgroundColor: '#000',
   },
   content: {
-    width: '100%',
+    width: '80%',
     alignItems: 'center',
-    marginTop: 100,
+    marginTop: 110,
   },
   button: {
     position: 'absolute',

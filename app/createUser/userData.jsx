@@ -15,9 +15,8 @@ const UserData = () => {
 
 const s = StyleSheet.create({
   container: {
-    flex: 1,
     alignItems: 'center',
-    width: '80%',
+    width: '100%',
   },
 });
 

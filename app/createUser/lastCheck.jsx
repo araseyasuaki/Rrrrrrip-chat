@@ -26,18 +26,17 @@ const LastCheck = () => {
 
 const s = StyleSheet.create({
   container: {
-    flex: 1,
     alignItems: 'center',
     width: '100%',
   },
   mainTitle: {
     fontSize: 20,
     fontWeight: 'bold',
-    width: '80%',
+    width: '100%',
   },
   mainText: {
     fontSize: 14,
-    width: '80%',
+    width: '100%',
     marginBottom: 50,
   },
 });
