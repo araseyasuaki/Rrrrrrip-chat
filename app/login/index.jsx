@@ -214,7 +214,7 @@ const s = StyleSheet.create({
     position: 'absolute',
     right: 10,
     top: '50%',
-    transform: [{ translateY: '-50%' }],
+    transform: [{ translateY: -11.25 }],
   },
   textLength: {
     width: '100%',
