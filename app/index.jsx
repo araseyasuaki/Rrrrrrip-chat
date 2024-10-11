@@ -1,40 +1,52 @@
-import { View, StyleSheet, Text, Image } from 'react-native';
-import { Link } from 'expo-router';
+import { View, StyleSheet, Text, Image, TouchableOpacity } from 'react-native';
+import { useRouter } from 'expo-router';
 
 const Index = () => {
+
+  const router = useRouter();
+
+  const linkBtn = () => {
+    router.push('/login');
+  }
+
   return (
-    <Link style={s.link} href='/login'>
+    <TouchableOpacity onPress={linkBtn} style={s.link}>
       <View style={s.container}>
-        <Image style={s.upper} source={require('../assets/images/ticketUpper.png')} />
-        <Image source={require('../assets/images/ticketBottom.png')} />
+        <Image style={s.logoImgTop} source={require('../assets/images/ticketTop.png')} />
+        <Image style={s.logoImgBottom} source={require('../assets/images/ticketBottom.png')} />
         <Text style={s.text}>Rrrrrrip</Text>
       </View>
-    </Link>
+    </TouchableOpacity>
   );
 }
 
 const s = StyleSheet.create({
   link: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+    flex: 1, // 画面全体にリンクを広げる
     backgroundColor: '#C995E0',
   },
   container: {
-    width: '100%',
-    height: '100%',
+    flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
   },
-  upper: {
+  logoImgTop: {
+    width: 57,
+    height: 109,
     transform: [{ rotate: '15deg' }],
-    left: 13.5,
+    left: 4.5,
     top: -5,
+  },
+  logoImgBottom: {
+    width: 57,
+    height: 42,
+    left: -10,
   },
   text: {
     fontSize: 24,
     fontWeight: 'bold',
-    color: '#000',
+    marginTop: 10,
+    textAlign: 'center',
   },
 });
 
