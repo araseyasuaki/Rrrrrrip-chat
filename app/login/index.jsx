@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, TextInput, StyleSheet, Text, TouchableOpacity, ActivityIndicator, Image } from 'react-native';
+import { View, TextInput, StyleSheet, Text, TouchableOpacity, ActivityIndicator, Image, Keyboard, TouchableWithoutFeedback, Platform } from 'react-native';
 import { signInWithEmailAndPassword, createUserWithEmailAndPassword } from 'firebase/auth';
 import { useRouter } from 'expo-router';
 import { auth, db, getDoc, doc } from '../firebase.js';
@@ -13,6 +13,12 @@ const Login = () => {
   const [showPassword, setShowPassword] = useState(false); // パスワードの表示/非表示の切り替え
   const [loading, setLoading] = useState(true); // ログインのローディングの切り替え
   const router = useRouter();// URLのパスを変更
+
+  const dismissKeyboard = () => {
+    if (Platform.OS !== 'web') {
+      Keyboard.dismiss();
+    }
+  };
 
   // ログインのエラーメッセージのコンポーネント
   const loginAlert = () => {
@@ -104,59 +110,61 @@ const Login = () => {
   };
 
   return (
-    <View style={s.container}>
-      <Toast config={CustomToast}/>
+    <TouchableWithoutFeedback onPress={dismissKeyboard}>
+      <View style={s.container}>
+        <Toast config={CustomToast}/>
 
-      <Text style={[s.title, signSwitch ? {} : s.titleCreate]}>{signSwitch ? 'ログイン' : '新規作成'}</Text>
+        <Text style={[s.title, signSwitch ? {} : s.titleCreate]}>{signSwitch ? 'ログイン' : '新規作成'}</Text>
 
-      <View style={s.emailContainer}>
-        <Text style={s.formText}>メールアドレス</Text>
-        <TextInput
-          style={s.input}
-          value={email}
-          onChangeText={setEmail}
-          placeholder="メールを入力"
-          autoCapitalize="none"
-          keyboardType="email-address"
-        />
-      </View>
-
-      <View style={s.passwordContainer}>
-        <Text style={s.formText}>パスワード</Text>
-        <View style={s.passwordForm}>
+        <View style={s.emailContainer}>
+          <Text style={s.formText}>メールアドレス</Text>
           <TextInput
-            style={[s.input, s.passwordInput]}
-            value={password}
-            onChangeText={setPassword}
-            placeholder="パスワードを入力"
-            secureTextEntry={!showPassword}  // パスワード表示/非表示の切り替え
-            maxLength={16}
+            style={s.input}
+            value={email}
+            onChangeText={setEmail}
+            placeholder="メールを入力"
+            autoCapitalize="none"
+            keyboardType="email-address"
           />
-          <TouchableOpacity
-            style={s.showButton}
-            onPress={() => setShowPassword(!showPassword)}  // パスワード表示/非表示を切り替える
-          >
-            <View>{showPassword ?
-              <Image style={s.img} source={require('../../assets/images/eyeOpen.png')}/> :
-              <Image style={s.img} source={require('../../assets/images/eyeClose.png')}/>}
-            </View>
-          </TouchableOpacity>
         </View>
-        <Text style={s.textLength}>{`${password.length}/16`}</Text>
-      </View>
 
-      {loading ? (
-        <TouchableOpacity style={[s.button, signSwitch ? {} : s.buttonCreate]} onPress={login}>
-          <Text style={[s.buttonText, signSwitch ? {} : s.buttonTextCreate]}>{signSwitch ? 'ログイン' : '新規作成'}</Text>
+        <View style={s.passwordContainer}>
+          <Text style={s.formText}>パスワード</Text>
+          <View style={s.passwordForm}>
+            <TextInput
+              style={[s.input, s.passwordInput]}
+              value={password}
+              onChangeText={setPassword}
+              placeholder="パスワードを入力"
+              secureTextEntry={!showPassword}  // パスワード表示/非表示の切り替え
+              maxLength={16}
+            />
+            <TouchableOpacity
+              style={s.showButton}
+              onPress={() => setShowPassword(!showPassword)}  // パスワード表示/非表示を切り替える
+            >
+              <View>{showPassword ?
+                <Image style={s.img} source={require('../../assets/images/eyeOpen.png')}/> :
+                <Image style={s.img} source={require('../../assets/images/eyeClose.png')}/>}
+              </View>
+            </TouchableOpacity>
+          </View>
+          <Text style={s.textLength}>{`${password.length}/16`}</Text>
+        </View>
+
+        {loading ? (
+          <TouchableOpacity style={[s.button, signSwitch ? {} : s.buttonCreate]} onPress={login}>
+            <Text style={[s.buttonText, signSwitch ? {} : s.buttonTextCreate]}>{signSwitch ? 'ログイン' : '新規作成'}</Text>
+          </TouchableOpacity>
+        ) : (
+          <ActivityIndicator style={s.loading} size="large" color="#000000" />
+        )}
+
+        <TouchableOpacity style={s.link} onPress={signBtn}>
+          <Text style={s.linkText}>{signSwitch ? '新規登録' : 'ログイン'}はこちら</Text>
         </TouchableOpacity>
-      ) : (
-        <ActivityIndicator style={s.loading} size="large" color="#000000" />
-      )}
-
-      <TouchableOpacity style={s.link} onPress={signBtn}>
-        <Text style={s.linkText}>{signSwitch ? '新規登録' : 'ログイン'}はこちら</Text>
-      </TouchableOpacity>
-    </View>
+      </View>
+    </TouchableWithoutFeedback>
   );
 };
 
