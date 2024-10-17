@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, TextInput, StyleSheet } from 'react-native';
+import { View, Text, TextInput, StyleSheet, Keyboard, TouchableWithoutFeedback, Platform } from 'react-native';
 import { useRecoilState, useRecoilValue } from 'recoil';
 import { userState } from '../recoil';
 import { db, getDocs, collection, query, where } from "../firebase";
@@ -8,6 +8,12 @@ const UserData = () => {
   const userData = useRecoilValue(userState);
   const [userTextData, setUserTextData] = useRecoilState(userState);
   const [inputHeight, setInputHeight] = useState(0);
+
+  const dismissKeyboard = () => {
+    if (Platform.OS !== 'web') {
+      Keyboard.dismiss();
+    }
+  };
 
   const nameData = (name) => {
     setUserTextData(prev => ({ ...prev, name }));
@@ -38,9 +44,6 @@ const UserData = () => {
 
         // userIdFilterがuserIdsに含まれているかを確認
         if(!userIds.includes(userData.userIdFilter)) {
-          console.log(userIds);
-          console.log(`${userData.userIdFilter}:入力値`);
-          console.log("成功");
           setUserTextData(prev => ({ ...prev, userId: userData.userIdFilter }));
         } else {
           setUserTextData(prev => ({ ...prev, userId: '' }));
@@ -56,51 +59,53 @@ const UserData = () => {
   }, [userData.userIdFilter]);
 
   return (
-    <View style={s.container}>
+    <TouchableWithoutFeedback onPress={dismissKeyboard}>
+      <View style={s.container}>
 
-      <View style={s.formContainer}>
-        <Text style={s.formText}>名前</Text>
-        <TextInput
-          style={s.input}
-          placeholder='名前を入力'
-          value={userData.name}
-          onChangeText={nameData}
-          maxLength={16}
-        />
-        <Text style={s.textLength}>{`${userData.name.length}/16`}</Text>
-      </View>
-
-      <View style={s.formContainer}>
-        <Text style={s.formText}>ユーザーID</Text>
-        <TextInput
-          style={s.input}
-          placeholder='ユーザーIDを入力'
-          value={userData.userIdFilter}
-          onChangeText={userIdData}
-          maxLength={8}
-        />
-        <View style={s.formAlertContainer}>
-          <Text style={s.formAlert}>＊アルファベット・半角の数字のみ使用可能です！</Text>
-          <Text style={s.textLength}>{`${userData.userIdFilter.length}/8`}</Text>
+        <View style={s.formContainer}>
+          <Text style={s.formText}>名前</Text>
+          <TextInput
+            style={s.input}
+            placeholder='名前を入力'
+            value={userData.name}
+            onChangeText={nameData}
+            maxLength={16}
+          />
+          <Text style={s.textLength}>{`${userData.name.length}/16`}</Text>
         </View>
-      </View>
 
-      <View style={s.formContainer}>
-        <Text style={s.formText}>自己紹介文</Text>
-        <TextInput
-          style={[s.input, { height: Math.max(97, inputHeight) }]}
-          textAlignVertical='top'
-          multiline={true}
-          placeholder='自己紹介文を入力'
-          value={userData.text}
-          onChangeText={textData}
-          maxLength={300}
-          onContentSizeChange={(event) => setInputHeight(event.nativeEvent.contentSize.height)}
-        />
-        <Text style={s.textLength}>{`${userData.text.length}/300`}</Text>
-      </View>
+        <View style={s.formContainer}>
+          <Text style={s.formText}>ユーザーID</Text>
+          <TextInput
+            style={s.input}
+            placeholder='ユーザーIDを入力'
+            value={userData.userIdFilter}
+            onChangeText={userIdData}
+            maxLength={8}
+          />
+          <View style={s.formAlertContainer}>
+            <Text style={s.formAlert}>＊アルファベット・半角の数字のみ使用可能です！</Text>
+            <Text style={s.textLength}>{`${userData.userIdFilter.length}/8`}</Text>
+          </View>
+        </View>
 
-    </View>
+        <View style={s.formContainer}>
+          <Text style={s.formText}>自己紹介文</Text>
+          <TextInput
+            style={[s.input, { height: Math.max(97, inputHeight), borderRadius: 10,}]}
+            textAlignVertical='top'
+            multiline={true}
+            placeholder='自己紹介文を入力'
+            value={userData.text}
+            onChangeText={textData}
+            maxLength={300}
+            onContentSizeChange={(event) => setInputHeight(event.nativeEvent.contentSize.height)}
+          />
+          <Text style={s.textLength}>{`${userData.text.length}/300`}</Text>
+        </View>
+
+      </View>
+    </TouchableWithoutFeedback>
   );
 };
 
