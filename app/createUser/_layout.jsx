@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, Image, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, Text, Image, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
 import { RecoilRoot, useRecoilValue } from 'recoil';
 import { userState } from '../recoil';
 import UserData from './userData';
@@ -7,6 +7,8 @@ import Icon from './icon';
 import Tag from './tag';
 import LastCheck from './lastCheck';
 import { useRouter } from 'expo-router';
+import Toast from 'react-native-toast-message';
+import CustomToast from '../customToastConfig';
 
 
 const Layout = () => {
@@ -14,6 +16,22 @@ const Layout = () => {
   const [progressState, setProgressState] = useState(0);
   const [btn, setBtn] = useState(false);
   const userData = useRecoilValue(userState);
+
+  const userIdAlert = () => {
+    Toast.show({
+      type: 'error',
+      text1: 'このユーザーIDは使用できません',
+      text2: 'このユーザーIDは重複しているため使用することができません。',
+      position: 'top',
+      visibilityTime: 2500,
+    });
+  }
+
+  useEffect(() => {
+    if(!userData.userId && userData.userIdFilter){
+      userIdAlert();
+    };
+  },[userData.userId])
 
   const handlePress = () => {
     if (progressState === 0) {
@@ -38,12 +56,13 @@ const Layout = () => {
     } else if(progressState === 1) {
       setBtn(!!userData.name && !!userData.userId && !!userData.text);
     } else if(progressState === 2) {
-      setBtn(!!userData.tags);
+      setBtn(userData.tags.length > 0);
     }
   }, [progressState, userData]);
 
   return (
     <View style={s.container}>
+      <Toast config={CustomToast}/>
       <View style={s.header}>
         <TouchableOpacity style={s.arrowBtn} onPress={handlePress}>
           <Image source={require('../../assets/images/arrowLeft.png')} />
@@ -66,7 +85,8 @@ const Layout = () => {
       </View>
 
       <TouchableOpacity style={[s.button, !btn && s.disabledButton]} onPress={handleNextPress}
-      // disabled={!btn}
+      disabled={!btn}
+      ////// フォームの入力チェック
       >
         <Text style={s.buttonText}>次</Text>
       </TouchableOpacity>
@@ -110,6 +130,7 @@ const s = StyleSheet.create({
   },
   headerProgress: {
     position: 'absolute',
+    zIndex: -10,
     flexDirection: 'row',
     width: '100%',
     top: 58,
