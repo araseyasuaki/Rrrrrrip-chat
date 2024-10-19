@@ -70,6 +70,8 @@ const Layout = () => {
         <Text style={s.headerTitle}>プロフィール設定</Text>
       </View>
 
+      <View style={s.headerBg}/>
+
       <View style={s.headerProgress}>
         <View style={[s.firstBar, (progressState >= 1) && s.activeBar]} />
         <View style={[s.secondBar, (progressState >= 1) && s.activeBar]} />
@@ -77,15 +79,17 @@ const Layout = () => {
         <View style={[s.lastBar, (progressState === 3) && s.activeBar]} />
       </View>
 
-      <View style={s.content}>
-        {progressState === 0 && <Icon />}
-        {progressState === 1 && <UserData />}
-        {progressState === 2 && <Tag />}
-        {progressState === 3 && <LastCheck />}
-      </View>
+      <ScrollView style={s.content} showsVerticalScrollIndicator={false}>
+        <View style={s.contentWidth}>
+          {progressState === 0 && <Icon />}
+          {progressState === 1 && <UserData />}
+          {progressState === 2 && <Tag />}
+          {progressState === 3 && <LastCheck />}
+        </View>
+      </ScrollView>
 
       <TouchableOpacity style={[s.button, !btn && s.disabledButton]} onPress={handleNextPress}
-      disabled={!btn}
+      // disabled={!btn}
       ////// フォームの入力チェック
       >
         <Text style={s.buttonText}>次</Text>
@@ -118,6 +122,15 @@ const s = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     paddingVertical: 14,
+  },
+  headerBg: {
+    position: 'absolute',
+    top: 0,
+    width: '100%',
+    height: 64,
+    backgroundColor: '#C995E0',
+    opacity: .7,
+    zIndex: -10,
   },
   arrowBtn: {
     position: 'absolute',
@@ -170,9 +183,13 @@ const s = StyleSheet.create({
     backgroundColor: '#000',
   },
   content: {
+    width: '100%',
+    paddingTop: 110,
+    zIndex: -20,
+  },
+  contentWidth: {
     width: '80%',
-    alignItems: 'center',
-    marginTop: 110,
+    marginHorizontal: '10%',
   },
   button: {
     position: 'absolute',
@@ -182,7 +199,6 @@ const s = StyleSheet.create({
     borderRadius: 25,
     alignItems: 'center',
     width: '80%',
-    marginTop: 20,
   },
   buttonText: {
     color: '#fff',
