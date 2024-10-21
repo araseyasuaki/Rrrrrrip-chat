@@ -7,31 +7,12 @@ import Icon from './icon';
 import Tag from './tag';
 import LastCheck from './lastCheck';
 import { useRouter } from 'expo-router';
-import Toast from 'react-native-toast-message';
-import CustomToast from '../customToastConfig';
-
 
 const Layout = () => {
   const router = useRouter();
   const [progressState, setProgressState] = useState(0);
   const [btn, setBtn] = useState(false);
   const userData = useRecoilValue(userState);
-
-  const userIdAlert = () => {
-    Toast.show({
-      type: 'error',
-      text1: 'このユーザーIDは使用できません',
-      text2: 'このユーザーIDは重複しているため使用することができません。',
-      position: 'top',
-      visibilityTime: 2500,
-    });
-  }
-
-  useEffect(() => {
-    if(!userData.userId && userData.userIdFilter){
-      userIdAlert();
-    };
-  },[userData.userId])
 
   const handlePress = () => {
     if (progressState === 0) {
@@ -62,7 +43,6 @@ const Layout = () => {
 
   return (
     <View style={s.container}>
-      <Toast config={CustomToast}/>
       <View style={s.header}>
         <TouchableOpacity style={s.arrowBtn} onPress={handlePress}>
           <Image source={require('../../assets/images/arrowLeft.png')} />
@@ -190,6 +170,7 @@ const s = StyleSheet.create({
   contentWidth: {
     width: '80%',
     marginHorizontal: '10%',
+    paddingBottom: 114,
   },
   button: {
     position: 'absolute',
