@@ -22,7 +22,7 @@ const Index = () => {
 
 const s = StyleSheet.create({
   link: {
-    flex: 1, // 画面全体にリンクを広げる
+    flex: 1,
     backgroundColor: '#C995E0',
   },
   container: {
