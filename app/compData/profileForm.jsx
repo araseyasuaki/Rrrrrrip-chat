@@ -1,13 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, TextInput, StyleSheet, Keyboard, TouchableWithoutFeedback, Platform } from 'react-native';
-import { useRecoilState, useRecoilValue } from 'recoil';
+import { useRecoilState } from 'recoil';
 import { userState } from '../recoil';
-import { db, getDocs, collection, query, where } from "../firebase";
+import { db, getDocs, collection } from "../firebase";
 
-const UserData = () => {
-  const userData = useRecoilValue(userState);
-  const [userTextData, setUserTextData] = useRecoilState(userState);
+const ProfileForm = () => {
+  const [userData, setUserData] = useRecoilState(userState);
   const [inputHeight, setInputHeight] = useState(0);
+  const [formAlertText, setFormAlertText] = useState('');
 
   const dismissKeyboard = () => {
     if (Platform.OS !== 'web') {
@@ -15,60 +15,59 @@ const UserData = () => {
     }
   };
 
-  const nameData = (name) => {
-    setUserTextData(prev => ({ ...prev, name }));
+  const nameBtn = (name) => {
+    setUserData(prev => ({ ...prev, name }));
   };
 
-  const userIdData = (userId) => {
+  const userIdBtn = (userIdFilter) => {
     const alphanumericRegex = /^[a-zA-Z0-9]*$/;
-    if (alphanumericRegex.test(userId)) {
-      setUserTextData(prev => ({ ...prev, userIdFilter: userId }));
+    if (alphanumericRegex.test(userIdFilter)) {
+      setUserData(prev => ({ ...prev, userIdFilter }));
+      setFormAlertText(''); // エラーメッセージをクリア
+    } else {
+      setFormAlertText('＊アルファベット・半角の数字のみ使用可能です！');
     }
-  };
-
-  const textData = (text) => {
-    setUserTextData(prev => ({ ...prev, text: text }));
   };
 
   useEffect(() => {
-    const fetchUserIdsAndCompare = async () => {
-      try {
-        const userIds = [];
-        const usersData = await getDocs(collection(db, "users"));
-        usersData.forEach((doc) => {
-          const data = doc.data();
-          if (data.userId) {
-            userIds.push(data.userId);
-          }
-        });
+    const checkDuplicateUserId = async () => {
+      if (userData.userIdFilter) {
+        try {
+          const usersData = await getDocs(collection(db, "users"));
+          const userIds = usersData.docs.map(doc => doc.data().userId).filter(Boolean);
 
-        // userIdFilterがuserIdsに含まれているかを確認
-        if(!userIds.includes(userData.userIdFilter)) {
-          setUserTextData(prev => ({ ...prev, userId: userData.userIdFilter }));
-        } else {
-          setUserTextData(prev => ({ ...prev, userId: '' }));
+          if (userIds.includes(userData.userIdFilter)) {
+            setFormAlertText("ユーザーIDが重複しています。");
+          } else {
+            setFormAlertText('');
+            setUserData(prev => ({ ...prev, userId: userData.userIdFilter }));
+          }
+        } catch (error) {
+          console.error("Error fetching user IDs: ", error);
+          setFormAlertText("ユーザーIDの取得中にエラーが発生しました。");
         }
-      } catch (error) {
-        console.error("Error fetching user IDs: ", error);
+      } else {
+        setFormAlertText('');
       }
     };
 
-    if (userData.userIdFilter) {
-      fetchUserIdsAndCompare();
-    }
+    checkDuplicateUserId();
   }, [userData.userIdFilter]);
+
+  const textBtn = (text) => {
+    setUserData(prev => ({ ...prev, text }));
+  };
 
   return (
     <TouchableWithoutFeedback onPress={dismissKeyboard}>
       <View style={s.container}>
-
         <View style={s.formContainer}>
           <Text style={s.formText}>名前</Text>
           <TextInput
             style={s.input}
             placeholder='名前を入力'
             value={userData.name}
-            onChangeText={nameData}
+            onChangeText={nameBtn}
             maxLength={16}
           />
           <Text style={s.textLength}>{`${userData.name.length}/16`}</Text>
@@ -80,11 +79,13 @@ const UserData = () => {
             style={s.input}
             placeholder='ユーザーIDを入力'
             value={userData.userIdFilter}
-            onChangeText={userIdData}
+            onChangeText={userIdBtn}
             maxLength={8}
           />
           <View style={s.formAlertContainer}>
-            <Text style={s.formAlert}>＊アルファベット・半角の数字のみ使用可能です！</Text>
+            <Text style={[s.formAlertText, formAlertText ? s.formAlertTextOn : null]}>
+              {formAlertText}
+            </Text>
             <Text style={s.textLength}>{`${userData.userIdFilter.length}/8`}</Text>
           </View>
         </View>
@@ -92,18 +93,18 @@ const UserData = () => {
         <View style={s.formContainer}>
           <Text style={s.formText}>自己紹介文</Text>
           <TextInput
-            style={[s.input, { height: Math.max(97, inputHeight), borderRadius: 10,}]}
+            style={[s.input, { height: Math.max(97, inputHeight), borderRadius: 10 }]}
             textAlignVertical='top'
             multiline={true}
+            scrollEnabled={false} // スクロールを無効にする
             placeholder='自己紹介文を入力'
             value={userData.text}
-            onChangeText={textData}
+            onChangeText={textBtn}
             maxLength={300}
             onContentSizeChange={(event) => setInputHeight(event.nativeEvent.contentSize.height)}
           />
           <Text style={s.textLength}>{`${userData.text.length}/300`}</Text>
         </View>
-
       </View>
     </TouchableWithoutFeedback>
   );
@@ -112,19 +113,21 @@ const UserData = () => {
 const s = StyleSheet.create({
   container: {
     width: '100%',
+    alignItems: 'center',
   },
   formContainer: {
-    width: '100%',
+    width: 300,
+    marginBottom: 10,
   },
   formText: {
     width: '100%',
     fontSize: 14,
-    fontWeight: 'bold,'
+    fontWeight: 'bold',
   },
   input: {
     width: '100%',
     padding: 13.5,
-    marginVertical: 10,
+    marginVertical: 5,
     borderWidth: 2,
     borderRadius: 25,
     backgroundColor: '#fff',
@@ -133,12 +136,18 @@ const s = StyleSheet.create({
     display: 'flex',
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginBottom: 21,
+  },
+  formAlertText: {
+    fontSize: 12,
+  },
+  formAlertTextOn: {
+    color: '#FF0000',
   },
   textLength: {
     textAlign: 'right',
-    fontSize: 14,
+    fontSize: 12,
+    paddingLeft: 10,
   },
 });
 
-export default UserData;
+export default ProfileForm;
