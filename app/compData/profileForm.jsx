@@ -23,7 +23,7 @@ const ProfileForm = () => {
     const alphanumericRegex = /^[a-zA-Z0-9]*$/;
     if (alphanumericRegex.test(userIdFilter)) {
       setUserData(prev => ({ ...prev, userIdFilter }));
-      setFormAlertText(''); // エラーメッセージをクリア
+      setFormAlertText('');
     } else {
       setFormAlertText('＊アルファベット・半角の数字のみ使用可能です！');
     }
