@@ -7,7 +7,7 @@ import { db, getDocs, collection } from "../firebase";
 const ProfileForm = () => {
   const [userData, setUserData] = useRecoilState(userState);
   const [inputHeight, setInputHeight] = useState(0);
-  const [formAlertText, setFormAlertText] = useState('');
+  const [passwordFormAlert, setPasswordFormAlert] = useState('');
 
   const dismissKeyboard = () => {
     if (Platform.OS !== 'web') {
@@ -23,9 +23,9 @@ const ProfileForm = () => {
     const alphanumericRegex = /^[a-zA-Z0-9]*$/;
     if (alphanumericRegex.test(userIdFilter)) {
       setUserData(prev => ({ ...prev, userIdFilter }));
-      setFormAlertText('');
+      setPasswordFormAlert('');
     } else {
-      setFormAlertText('＊アルファベット・半角の数字のみ使用可能です！');
+      setPasswordFormAlert('＊アルファベット・半角の数字のみ使用可能です！');
     }
   };
 
@@ -37,17 +37,17 @@ const ProfileForm = () => {
           const userIds = usersData.docs.map(doc => doc.data().userId).filter(Boolean);
 
           if (userIds.includes(userData.userIdFilter)) {
-            setFormAlertText("ユーザーIDが重複しています。");
+            setPasswordFormAlert("ユーザーIDが重複しています。");
           } else {
-            setFormAlertText('');
+            setPasswordFormAlert('');
             setUserData(prev => ({ ...prev, userId: userData.userIdFilter }));
           }
         } catch (error) {
           console.error("Error fetching user IDs: ", error);
-          setFormAlertText("ユーザーIDの取得中にエラーが発生しました。");
+          setPasswordFormAlert("ユーザーIDの取得中にエラーが発生しました。");
         }
       } else {
-        setFormAlertText('');
+        setPasswordFormAlert('');
       }
     };
 
@@ -83,8 +83,8 @@ const ProfileForm = () => {
             maxLength={8}
           />
           <View style={s.formAlertContainer}>
-            <Text style={[s.formAlertText, formAlertText ? s.formAlertTextOn : null]}>
-              {formAlertText}
+            <Text style={s.formAlert}>
+              {passwordFormAlert}
             </Text>
             <Text style={s.textLength}>{`${userData.userIdFilter.length}/8`}</Text>
           </View>
@@ -96,7 +96,7 @@ const ProfileForm = () => {
             style={[s.input, { height: Math.max(97, inputHeight), borderRadius: 10 }]}
             textAlignVertical='top'
             multiline={true}
-            scrollEnabled={false} // スクロールを無効にする
+            scrollEnabled={false}
             placeholder='自己紹介文を入力'
             value={userData.text}
             onChangeText={textBtn}
@@ -137,10 +137,8 @@ const s = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
   },
-  formAlertText: {
+  formAlert: {
     fontSize: 12,
-  },
-  formAlertTextOn: {
     color: '#FF0000',
   },
   textLength: {
