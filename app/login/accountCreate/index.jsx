@@ -1,10 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, TextInput, StyleSheet, Text, TouchableOpacity, ActivityIndicator, Image, Keyboard, TouchableWithoutFeedback, Platform } from 'react-native';
 import { signInWithEmailAndPassword, createUserWithEmailAndPassword } from 'firebase/auth';
 import { useRouter } from 'expo-router';
 import { auth, db, getDoc, doc } from '../../firebase.js';
-import Toast from 'react-native-toast-message';
-import CustomToast from '../../customToastConfig/index.jsx';
 import { useRecoilState, RecoilRoot } from 'recoil';
 import { userState } from '../../recoil/index.jsx';
 
@@ -12,6 +10,8 @@ const AccountCreate = () => {
   const [userData, setUserData] = useRecoilState(userState)
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [emailFormAlert, setEmailFormAlert] = useState('');
+  const [passwordFormAlert, setPasswordFormAlert] = useState('');
   const router = useRouter();
 
   const dismissKeyboard = () => {
@@ -20,41 +20,33 @@ const AccountCreate = () => {
     }
   };
 
-  const passwoedAlert = () => {
-    Toast.show({
-      type: 'error',
-      text1: 'パスワードエラー',
-      text2: 'パスワードは8文字以上必要です。',
-      position: 'top',
-      visibilityTime: 2500,
-    });
-    return;
-  }
-
-  const createAlert = () => {
-    Toast.show({
-      type: 'error',
-      text1: 'アカウント作成エラー',
-      text2: 'メールアドレスがすでに使われている。もしくは、アカウントが存在しません。',
-      position: 'top',
-      visibilityTime: 2500,
-    });
-  }
+  useEffect(() => {
+    if(userData.password){
+      if(userData.password.length < 8) {
+        setPasswordFormAlert('パスワードは8文字以上必要です。');
+      } else {
+        setPasswordFormAlert('');
+      }
+    }
+  },[userData.password])
 
   const accountCreate = async () => {
     setLoading(false);
     try {
-      if (password.length < 8) {
-        passwoedAlert()
+      if (formAlertText) {
         return;
       }
-      await createUserWithEmailAndPassword(auth, email, password);
+      setFormAlertText('');
+      await createUserWithEmailAndPassword(auth, userData.email, userData.password);
       const user = auth.currentUser;
       if (user) {
           router.push('/createUser');
       }
     } catch (error) {
-      createAlert();
+      setEmailFormAlert('メールアドレスがすでに使われている。もしくは、メールアドレスが存在しません。')
+      setTimeout(() => {
+        setEmailFormAlert('');
+      }, 2500);
       console.error('エラーが発生しました', error);
     } finally {
       setLoading(true);
@@ -76,7 +68,6 @@ const AccountCreate = () => {
   return (
     <TouchableWithoutFeedback onPress={dismissKeyboard}>
       <View style={s.container}>
-        <Toast config={CustomToast}/>
 
         <TouchableOpacity style={s.arrowBtn} onPress={arrowBtn}>
           <Image source={require('../../../assets/images/arrowLeft.png')} />
@@ -94,6 +85,7 @@ const AccountCreate = () => {
             autoCapitalize="none"
             keyboardType="email-address"
           />
+          <Text style={s.formAlertText}>{emailFormAlert}</Text>
         </View>
 
         <View style={s.passwordContainer}>
@@ -120,11 +112,14 @@ const AccountCreate = () => {
               </View>
             </TouchableOpacity>
           </View>
-          <Text style={s.textLength}>{`${userData.password.length}/16`}</Text>
+          <View style={s.formAlertContainer}>
+            <Text style={s.formAlertText}>{passwordFormAlert}</Text>
+            <Text style={s.textLength}>{`${userData.password.length}/16`}</Text>
+          </View>
         </View>
 
         {loading ? (
-          <TouchableOpacity style={s.button} onPress={accountCreate}>
+          <TouchableOpacity style={[s.button, passwordFormAlert && s.disabledButton]} onPress={accountCreate} disabled={passwordFormAlert}>
             <Text style={s.buttonText}>新規作成</Text>
           </TouchableOpacity>
         ) : (
@@ -205,11 +200,21 @@ const s = StyleSheet.create({
   img: {
     textAlign: 'center',
   },
-  textLength: {
+  formAlertContainer: {
     width: '100%',
+    display: 'flex',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  formAlertText: {
+    fontSize: 12,
+    color: '#FF0000',
+  },
+  textLength: {
     textAlign: 'right',
     color: '#fff',
     fontSize: 12,
+    paddingLeft: 10,
   },
   button: {
     backgroundColor: '#000',
@@ -227,6 +232,9 @@ const s = StyleSheet.create({
   loading: {
     marginTop: 20,
     paddingVertical: 4,
+  },
+  disabledButton: {
+    opacity: .3,
   },
 });
 
