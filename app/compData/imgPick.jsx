@@ -39,23 +39,27 @@ const ImgPick = () => {
 
 const s = StyleSheet.create({
   iconContainer: {
+    width: '100%',
+    height: '100%',
     position: 'relative',
     justifyContent: 'center',
     alignItems: 'center',
   },
   iconImg: {
-    width: 180,
-    height: 180,
-    borderRadius: 90,
+    width: '100%',
+    height: '100%',
+    borderRadius: '50%',
   },
   imgPulsBtn: {
     position: 'absolute',
     bottom: 0,
     right: 0,
+    width: '30%',
+    height: '30%',
   },
   imgPulsImg: {
-    width: 55,
-    height: 55,
+    width: '100%',
+    height: '100%',
   },
 });
 
