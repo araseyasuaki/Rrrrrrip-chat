@@ -1,53 +1,33 @@
-
-import React, { useState } from 'react';
+import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Image } from 'react-native';
 import { useRecoilState } from 'recoil';
-import { userState } from '../recoil'; // userStateのパスを修正
+import { userState } from '../recoil';
 
 const TagChoice = () => {
-  const [userData, setUserData] = useRecoilState(userState);
-  const [tags, setTags] = useState({
-    ポケモンGO: false,
-    原神: false,
-    スターレイル: false,
-    ゼンレスゾーンゼロ: false,
-    サマナーズウォー: false,
-  });
+  const [tags, setTags] = useRecoilState(userState);
 
-  const handleTagToggle = (tag) => {
-    const newTags = { ...tags, [tag]: !tags[tag] };
-    setTags(newTags);
+  const tagChangeBtn = (tagId) => {
+    const tagChecker = tags.tagList.map(tag =>
+      tag.id === tagId ? { ...tag, selected: !tag.selected } : tag
+    );
 
-    // 選択されているタグ（trueになっているもの）だけを配列に変換
-    const selectedTags = Object.keys(newTags).filter((key) => newTags[key]);
-
-    // userDataのtagsフィールドを配列として更新
-    setUserData(prev => ({ ...prev, tags: selectedTags }));
+    setTags(prev => ({...prev,
+      tagList: tagChecker,
+    }));
   };
 
   return (
     <View style={s.container}>
-
-      <View style={s.tags}>
-        <Text style={s.tagsTitle}>ゲーム</Text>
-        <View style={s.underline} />
-
-        <View style={s.tagsContainer}>
-          {Object.keys(tags).map((tag) => (
-            <TouchableOpacity
-              key={tag}
-              style={[s.tagButton, tags[tag] && s.selectedTag]}
-              onPress={() => handleTagToggle(tag)}
-            >
-              <View style={s.tagContent}>
-                <Image style={s.tagIcon} source={require('../../assets/images/tagsIcon.png')} />
-                <Text style={s.tagButtonText}>{tag}</Text>
-              </View>
-            </TouchableOpacity>
-          ))}
-        </View>
-      </View>
-
+      {tags.tagList.map(tag => (
+        <TouchableOpacity
+          key={tag.id}
+          style={[s.tagButton, tag.selected && s.tagButtonOn]}
+          onPress={() => tagChangeBtn(tag.id)}
+        >
+          <Image source={tag.imgUrl} style={s.tagImage} />
+          <Text style={s.tagText}>{tag.name}</Text>
+        </TouchableOpacity>
+      ))}
     </View>
   );
 };
@@ -55,57 +35,31 @@ const TagChoice = () => {
 const s = StyleSheet.create({
   container: {
     width: '100%',
-  },
-  tags: {
-    width: '100%',
     flexDirection: 'row',
     flexWrap: 'wrap',
-    justifyContent: 'center',
-  },
-  tagsTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    width: '100%',
-  },
-  underline: {
-    width: '100%',
-    height: 2,
-    backgroundColor: '#000',
-    marginVertical: 1.5,
-    borderRadius: 0.75,
-    marginBottom: 10,
-  },
-  tagsContainer: {
-    width: '100%',
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'center',
-    marginVertical: 10,
   },
   tagButton: {
-    borderWidth: 1.5,
-    borderColor: '#000',
-    borderRadius: 20,
-    paddingVertical: 10,
-    paddingHorizontal: 15,
-    margin: 5,
-  },
-  tagContent: {
     flexDirection: 'row',
     alignItems: 'center',
+    borderRadius: 20,
+    padding: 6,
+    paddingHorizontal: 8,
+    borderWidth: 1,
+    borderColor: '#000',
+    margin: 5,
   },
-  tagIcon: {
-    width: 16,
-    height: 16,
-    marginRight: 5,
-  },
-  selectedTag: {
+  tagButtonOn: {
     backgroundColor: '#000',
   },
-  tagButtonText: {
-    fontSize: 16,
-    color: '#fff',
+  tagImage: {
+    width: 20,
+    height: 20,
+  },
+  tagText: {
+    fontSize: 14,
     fontWeight: 'bold',
+    color: '#fff',
+    marginLeft: 6,
   },
 });
 
