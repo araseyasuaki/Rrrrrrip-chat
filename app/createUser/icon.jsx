@@ -10,7 +10,10 @@ const Icon = () => {
       <Text style={s.mainTitle}>アイコンを選ぼう</Text>
       <Text style={s.mainText}>自分の顔となる写真を選ぼう</Text>
 
-      <ImgPick/>
+      <View style={s.ImgPickContainer}>
+        <ImgPick/>
+      </View>
+
 
     </View>
   );
@@ -29,8 +32,12 @@ const s = StyleSheet.create({
   mainText: {
     fontSize: 14,
     width: '100%',
-    marginBottom: 50,
+    marginBottom: 30,
   },
+  ImgPickContainer: {
+    width: 180,
+    height: 180,
+  }
 });
 
 export default Icon;
