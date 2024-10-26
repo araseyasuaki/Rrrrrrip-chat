@@ -16,13 +16,13 @@ const ProfileForm = () => {
   };
 
   const nameBtn = (name) => {
-    setUserData(prev => ({ ...prev, name }));
+    setUserData(prev => ({ ...prev, name: name }));
   };
 
   const userIdBtn = (userIdFilter) => {
     const alphanumericRegex = /^[a-zA-Z0-9]*$/;
     if (alphanumericRegex.test(userIdFilter)) {
-      setUserData(prev => ({ ...prev, userIdFilter }));
+      setUserData(prev => ({ ...prev, userIdFilter: userIdFilter }));
       setPasswordFormAlert('');
     } else {
       setPasswordFormAlert('＊アルファベット・半角の数字のみ使用可能です！');
@@ -55,7 +55,7 @@ const ProfileForm = () => {
   }, [userData.userIdFilter]);
 
   const textBtn = (text) => {
-    setUserData(prev => ({ ...prev, text }));
+    setUserData(prev => ({ ...prev, text: text }));
   };
 
   return (
@@ -116,7 +116,7 @@ const s = StyleSheet.create({
     alignItems: 'center',
   },
   formContainer: {
-    width: 300,
+    width: '100%',
     marginBottom: 10,
   },
   formText: {

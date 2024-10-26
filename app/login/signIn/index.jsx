@@ -55,11 +55,12 @@ const Signin = () => {
   };
 
   const emailBtn = (email) => {
-    setUserData(prev => ({ ...prev, email }));
+    setUserData(prev => ({ ...prev, email: email }));
+    console.log(userData.email)
   };
 
   const passwordBtn = (password) => {
-    setUserData(prev => ({ ...prev, password }));
+    setUserData(prev => ({ ...prev, password: password }));
   };
 
   const arrowBtn = () => {
@@ -148,7 +149,7 @@ const s = StyleSheet.create({
   },
   arrowBtn: {
     position: 'absolute',
-    top: 14,
+    top: 17,
     left: 20,
   },
   title: {
