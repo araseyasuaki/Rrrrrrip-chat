@@ -37,7 +37,7 @@ const Layout = () => {
     } else if(progressState === 1) {
       setBtn(!!userData.name && !!userData.userId && !!userData.text);
     } else if(progressState === 2) {
-      setBtn(userData.tags.length > 0);
+      setBtn(userData.tagList.some(tag => tag.selected));
     }
   }, [progressState, userData]);
 
@@ -60,11 +60,13 @@ const Layout = () => {
       </View>
 
       <ScrollView style={s.content} showsVerticalScrollIndicator={false}>
-        <View style={s.contentWidth}>
-          {progressState === 0 && <Icon />}
-          {progressState === 1 && <UserData />}
-          {progressState === 2 && <Tag />}
-          {progressState === 3 && <LastCheck />}
+        <View style={s.contentWidthBox}>
+          <View style={s.contentWidth}>
+            {progressState === 0 && <Icon/>}
+            {progressState === 1 && <UserData/>}
+            {progressState === 2 && <Tag/>}
+            {progressState === 3 && <LastCheck/>}
+          </View>
         </View>
       </ScrollView>
 
@@ -167,10 +169,14 @@ const s = StyleSheet.create({
     paddingTop: 110,
     zIndex: -20,
   },
+  contentWidthBox: {
+    width: '100%',
+    paddingBottom: 114,
+    alignItems: 'center'
+  },
   contentWidth: {
     width: '80%',
-    marginHorizontal: '10%',
-    paddingBottom: 114,
+    maxWidth: 600,
   },
   button: {
     position: 'absolute',
@@ -179,7 +185,7 @@ const s = StyleSheet.create({
     padding: 10,
     borderRadius: 25,
     alignItems: 'center',
-    width: '80%',
+    width: 300,
   },
   buttonText: {
     color: '#fff',
