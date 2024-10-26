@@ -33,10 +33,6 @@ const AccountCreate = () => {
   const accountCreate = async () => {
     setLoading(false);
     try {
-      if (formAlertText) {
-        return;
-      }
-      setFormAlertText('');
       await createUserWithEmailAndPassword(auth, userData.email, userData.password);
       const user = auth.currentUser;
       if (user) {
@@ -54,11 +50,11 @@ const AccountCreate = () => {
   };
 
   const emailBtn = (email) => {
-    setUserData({ ...userData, email });
+    setUserData(prev => ({ ...prev, email: userData.email }))
   };
 
   const passwordBtn = (password) => {
-    setUserData({ ...userData, password });
+    setUserData(prev => ({ ...prev, password: userData.password }))
   };
 
   const arrowBtn = () => {
@@ -149,7 +145,7 @@ const s = StyleSheet.create({
   },
   arrowBtn: {
     position: 'absolute',
-    top: 14,
+    top: 17,
     left: 20,
   },
   title: {
