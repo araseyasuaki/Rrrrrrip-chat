@@ -6,8 +6,6 @@ export default function RootLayout() {
     <RecoilRoot>
       <Stack screenOptions={{ headerShown: false }}>
         <Stack.Screen name="index" />
-        <Stack.Screen name="login" />
-        <Stack.Screen name="create" />
       </Stack>
     </RecoilRoot>
   );
