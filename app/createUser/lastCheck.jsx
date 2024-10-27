@@ -1,18 +1,53 @@
 import React from 'react';
-import { View, Text, Image, StyleSheet } from 'react-native';
+import { View, Text, Button, StyleSheet, Image } from 'react-native';
 import { useRecoilValue } from 'recoil';
 import { userState } from '../recoil';
-import { getAuth } from '../firebase'
+import { getAuth } from 'firebase/auth';
+import { db, storage, doc, setDoc, updateDoc, ref, uploadBytes, getDownloadURL } from '../firebase';
 
 const LastCheck = () => {
   const userData = useRecoilValue(userState);
   const tags = userData.tagList.filter(tag => tag.selected);
   const auth = getAuth();
   const user = auth.currentUser;
-  console.log(userData)
+
+  const addDataToFirestore = async (data) => {
+    try {
+      const userDocRef = doc(db, 'users', user.uid);
+      await setDoc(userDocRef, data, { merge: true });
+      console.log("プロフィールデータを追加しました。");
+    } catch (error) {
+      console.error("プロフィールデータの追加に失敗しました: ", error);
+    }
+  };
+
+  const handleSaveProfile = async () => {
+    let downloadURL = '';
+
+    if (userData.imageUri) {
+      const response = await fetch(userData.imageUri);
+      const blob = await response.blob();
+      const imageRef = ref(storage, `images/${user.uid}`);
+
+      await uploadBytes(imageRef, blob);
+      downloadURL = await getDownloadURL(imageRef);
+    }
+
+    const data = {
+      email: user.email,
+      imgUrl: downloadURL,
+      name: userData.name,
+      userId: userData.userId,
+      text: userData.text,
+      tagsId: userData.tagsId,
+    };
+
+    addDataToFirestore(data);
+  };
 
   return (
     <View style={s.container}>
+
       <Text style={s.mainTitle}>最終確認</Text>
       <Text style={s.mainText}>最後にもう一度入力したプロフィールが間違っていないかを確認しよう！</Text>
 
@@ -36,6 +71,7 @@ const LastCheck = () => {
           </View>
         ))}
       </View>
+
     </View>
   );
 };
