@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, Image, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
+import { View, Text, Image, StyleSheet, TouchableOpacity, ScrollView, ActivityIndicator } from 'react-native';
 import { RecoilRoot, useRecoilValue } from 'recoil';
 import { userState } from '../recoil';
 import UserData from './userData';
@@ -7,12 +7,17 @@ import Icon from './icon';
 import Tag from './tag';
 import LastCheck from './lastCheck';
 import { useRouter } from 'expo-router';
+import { getAuth } from 'firebase/auth';
+import { db, storage, doc, setDoc, updateDoc, ref, uploadBytes, getDownloadURL } from '../firebase';
 
 const Layout = () => {
   const router = useRouter();
   const [progressState, setProgressState] = useState(0);
   const [btn, setBtn] = useState(false);
   const userData = useRecoilValue(userState);
+  const [loading, setLoading] = useState(true);
+  const auth = getAuth();
+  const user = auth.currentUser;
 
   const handlePress = () => {
     if (progressState === 0) {
@@ -26,11 +31,45 @@ const Layout = () => {
     if (progressState < 3) {
       setProgressState(prevState => prevState + 1);
     } else {
-      router.push('/home');
+      setLoading(false);
+      const addDataToFirestore = async (data) => {
+        try {
+          const userDocRef = doc(db, 'users', user.uid);
+          await setDoc(userDocRef, data, { merge: true });
+          console.log("プロフィールデータを追加しました。");
+          setLoading(true);
+        } catch (error) {
+          console.error("プロフィールデータの追加に失敗しました: ", error);
+        }
+      };
+    
+      const handleSaveProfile = async () => {
+        let downloadURL = '';
+        if (userData.imageUri) {
+          const response = await fetch(userData.imageUri);
+          const blob = await response.blob();
+          const imageRef = ref(storage, `images/${user.uid}`);
+          await uploadBytes(imageRef, blob);
+          downloadURL = await getDownloadURL(imageRef);
+        }
+        const data = {
+          email: user.email,
+          imgUrl: downloadURL,
+          name: userData.name,
+          userId: userData.userId,
+          text: userData.text,
+          tagsId: userData.tagsId,
+        };
+        addDataToFirestore(data);
+      };
+      handleSaveProfile()
+      if(loading){
+        router.push('/home');
+      }
+
     }
   };
 
-  // progressStateが変更されるたびにボタンの状態を更新
   useEffect(() => {
     if(progressState === 0) {
       setBtn(!!userData.imageUri);
@@ -70,12 +109,15 @@ const Layout = () => {
         </View>
       </ScrollView>
 
-      <TouchableOpacity style={[s.button, !btn && s.disabledButton]} onPress={handleNextPress}
-      // disabled={!btn}
-      ////// フォームの入力チェック
-      >
-        <Text style={s.buttonText}>次</Text>
-      </TouchableOpacity>
+      {loading ? (
+                <TouchableOpacity style={[s.button, !btn && s.disabledButton]} onPress={handleNextPress}
+                // disabled={!btn}
+                >
+                  <Text style={s.buttonText}>次</Text>
+                </TouchableOpacity>
+        ) : (
+          <ActivityIndicator style={s.loading} size="large" color="#000000" />
+        )}
     </View>
   );
 };
