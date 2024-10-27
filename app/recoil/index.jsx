@@ -10,6 +10,7 @@
       userId: '',
       userIdFilter: '',
       text: 'よろしくお願いします！よろしくお願いします！よろしくお願いします！よろしくお願いします！よろしくお願いします！',
+      tagsId: '',
       tagList: [
         { id: 0, name: 'ポケモンGO', imgUrl: require(`../../assets/images/tagsIconA.png`), selected: false },
         { id: 1, name: '原神', imgUrl: require(`../../assets/images/tagsIconB.png`), selected: false },
