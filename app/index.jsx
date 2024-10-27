@@ -1,5 +1,6 @@
 import { View, StyleSheet, Text, Image, TouchableOpacity } from 'react-native';
 import { useRouter } from 'expo-router';
+import { useRecoilState, RecoilRoot } from 'recoil';
 
 const Index = () => {
 
@@ -10,6 +11,7 @@ const Index = () => {
   }
 
   return (
+    <RecoilRoot>
     <TouchableOpacity onPress={linkBtn} style={s.link}>
       <View style={s.container}>
         <Image style={s.logoImgTop} source={require('../assets/images/ticketTop.png')} />
@@ -17,6 +19,7 @@ const Index = () => {
         <Text style={s.text}>Rrrrrrip</Text>
       </View>
     </TouchableOpacity>
+    </RecoilRoot>
   );
 }
 

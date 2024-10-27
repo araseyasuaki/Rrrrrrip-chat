@@ -80,14 +80,6 @@ const Layout = () => {
   );
 };
 
-const App = () => {
-  return (
-    <RecoilRoot>
-      <Layout />
-    </RecoilRoot>
-  );
-};
-
 const s = StyleSheet.create({
   container: {
     flex: 1,
@@ -197,4 +189,4 @@ const s = StyleSheet.create({
   },
 });
 
-export default App;
+export default Layout;

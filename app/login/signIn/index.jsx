@@ -5,7 +5,7 @@ import { useRouter } from 'expo-router';
 import { auth, db, getDoc, doc } from '../../firebase.js';
 import Toast from 'react-native-toast-message';
 import CustomToast from '../../customToastConfig/index.jsx';
-import { useRecoilState, RecoilRoot } from 'recoil';
+import { useRecoilState } from 'recoil';
 import { userState } from '../../recoil/index.jsx';
 
 const Signin = () => {
@@ -131,14 +131,6 @@ const Signin = () => {
   );
 };
 
-const App = () => {
-  return (
-    <RecoilRoot>
-      <Signin />
-    </RecoilRoot>
-  );
-};
-
 const s = StyleSheet.create({
   container: {
     flex: 1,
@@ -225,4 +217,4 @@ const s = StyleSheet.create({
   },
 });
 
-export default App;
+export default Signin;

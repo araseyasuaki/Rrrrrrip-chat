@@ -3,7 +3,7 @@ import { View, TextInput, StyleSheet, Text, TouchableOpacity, ActivityIndicator,
 import { signInWithEmailAndPassword, createUserWithEmailAndPassword } from 'firebase/auth';
 import { useRouter } from 'expo-router';
 import { auth, db, getDoc, doc } from '../../firebase.js';
-import { useRecoilState, RecoilRoot } from 'recoil';
+import { useRecoilState } from 'recoil';
 import { userState } from '../../recoil/index.jsx';
 
 const AccountCreate = () => {
@@ -127,14 +127,6 @@ const AccountCreate = () => {
   );
 };
 
-const App = () => {
-  return (
-    <RecoilRoot>
-      <AccountCreate/>
-    </RecoilRoot>
-  );
-};
-
 const s = StyleSheet.create({
   container: {
     flex: 1,
@@ -234,4 +226,4 @@ const s = StyleSheet.create({
   },
 });
 
-export default App;
+export default AccountCreate;
