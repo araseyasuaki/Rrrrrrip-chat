@@ -1,153 +1,53 @@
-// import React, { useState, useEffect } from 'react';
-// import { View, Text, TextInput, Button, Image, CheckBox, StyleSheet } from 'react-native';
-// import { doc, getDoc, updateDoc } from 'firebase/firestore';
-// import { auth, db, storage } from '../firebase';
-// import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
-// import * as ImagePicker from 'expo-image-picker';
+// import React, { useEffect, useState } from 'react';
+// import { View, Image, Text, StyleSheet, ActivityIndicator } from 'react-native';
+// import { db, doc, getDoc, getAuth } from '../firebase'; // firebase設定をインポート
 
-// const Profile = () => {
-//   const [loading, setLoading] = useState(true);
-//   const [editMode, setEditMode] = useState(false); // 編集モードのトグル
-//   const [userData, setUserData] = useState(null);
-//   const [imageUri, setImageUri] = useState(null); // 新しい画像のURI
-//   const [newTags, setNewTags] = useState({
-//     travel: false,
-//     food: false,
-//     sports: false,
-//     anime: false,
-//     games: false,
-//   });
-
-//   const uid = auth.currentUser?.uid;
+// const UserImageDisplay = () => {
+//   const [imageUri, setImageUri] = useState(null);
+//   const [loading, setLoading] = useState(true); // ローディング状態を追加
+//   const [error, setError] = useState(null); // エラーメッセージを追加
+//   const auth = getAuth();
+//   const user = auth.currentUser;
 
 //   useEffect(() => {
 //     const fetchUserData = async () => {
-//       if (uid) {
-//         const docRef = doc(db, "users", uid);
-//         const docSnap = await getDoc(docRef);
-//         if (docSnap.exists()) {
-//           const data = docSnap.data();
-//           setUserData(data);
+//       try {
+//         const userDocRef = doc(db, 'users', user.uid); // 現在のユーザーのUIDを使用
+//         const userDoc = await getDoc(userDocRef);
 
-//           // Firestoreから取得したタグ情報を反映する
-//           const selectedTags = data.tag || [];
-//           const updatedTags = { ...newTags };
-//           selectedTags.forEach(tag => {
-//             updatedTags[tag] = true;
-//           });
-//           setNewTags(updatedTags);
+//         if (userDoc.exists()) {
+//           const data = userDoc.data();
+//           setImageUri(data.imgUrl); // 画像URLを設定
 //         } else {
-//           console.log("ユーザーデータが存在しません。");
+//           setError('ユーザーが見つかりません'); // ユーザーが存在しない場合のエラー処理
 //         }
+//       } catch (err) {
+//         console.error(err);
+//         setError('データの取得に失敗しました'); // エラーハンドリング
+//       } finally {
+//         setLoading(false); // ローディング状態を更新
 //       }
-//       setLoading(false); // ローディング終了
 //     };
 
-//     fetchUserData();
-//   }, [uid]);
-
-//   // 画像を選択する関数
-//   const pickImage = async () => {
-//     let result = await ImagePicker.requestMediaLibraryPermissionsAsync();
-//     if (result.granted === false) {
-//       alert("画像の選択にはアクセス権限が必要です。");
-//       return;
-//     }
-
-//     let pickerResult = await ImagePicker.launchImageLibraryAsync({
-//       mediaTypes: ImagePicker.MediaTypeOptions.Images,
-//       allowsEditing: true,
-//       aspect: [4, 3],
-//       quality: 1,
-//     });
-
-//     if (!pickerResult.canceled) {
-//       setImageUri(pickerResult.assets[0].uri); // 新しい画像をセット
-//     }
-//   };
-
-//   // 画像をFirebaseストレージにアップロードする関数
-//   const uploadImage = async () => {
-//     if (!imageUri) return userData.imageUrl; // 新しい画像がなければ元の画像URLを返す
-
-//     const response = await fetch(imageUri);
-//     const blob = await response.blob();
-//     const storageRef = ref(storage, `userIcons/${uid}`);
-//     await uploadBytes(storageRef, blob);
-
-//     return await getDownloadURL(storageRef); // 新しい画像のURLを返す
-//   };
-
-//   const saveUserData = async () => {
-//     const selectedTags = Object.keys(newTags).filter(tag => newTags[tag]);
-//     const updatedImageUrl = await uploadImage(); // 画像をアップロード
-
-//     const updatedData = {
-//       ...userData,
-//       tag: selectedTags,
-//       imageUrl: updatedImageUrl,
-//     };
-
-//     try {
-//       const docRef = doc(db, "users", uid);
-//       await updateDoc(docRef, updatedData);
-//       alert("ユーザーデータが更新されました！");
-//       setUserData(updatedData);
-//       setEditMode(false); // 編集モードを終了
-//     } catch (error) {
-//       console.error("データ更新中にエラーが発生しました: ", error);
-//     }
-//   };
+//     fetchUserData(); // データ取得を実行
+//   }, [user.uid]); // ユーザーのUIDに依存
 
 //   if (loading) {
-//     return <Text>Loading...</Text>;
-//   }
-
-//   if (!userData) {
-//     return <Text>No user data available</Text>;
+//     return (
+//       <View style={styles.container}>
+//         <ActivityIndicator size="large" color="#0000ff" /> {/* ローディングインジケーター */}
+//       </View>
+//     );
 //   }
 
 //   return (
 //     <View style={styles.container}>
-//       {editMode ? (
-//         <>
-//           <TextInput
-//             style={styles.input}
-//             value={userData.name}
-//             onChangeText={(text) => setUserData({ ...userData, name: text })}
-//           />
-//           <TextInput
-//             style={styles.input}
-//             value={userData.userText}
-//             onChangeText={(text) => setUserData({ ...userData, userText: text })}
-//           />
-//           <Text>タグを選んでください:</Text>
-//           {Object.keys(newTags).map((tag) => (
-//             <View key={tag} style={styles.checkboxContainer}>
-//               <CheckBox
-//                 value={newTags[tag]}
-//                 onValueChange={(newValue) => setNewTags({ ...newTags, [tag]: newValue })}
-//               />
-//               <Text>{tag}</Text>
-//             </View>
-//           ))}
-//           <Text>現在のアイコン:</Text>
-//           <Image
-//             source={{ uri: imageUri || userData.imageUrl }} // 新しい画像があればそれを表示
-//             style={styles.image}
-//           />
-//           <Button title="アイコンを変更" onPress={pickImage} />
-//           <Button title="保存" onPress={saveUserData} />
-//           <Button title="キャンセル" onPress={() => setEditMode(false)} />
-//         </>
+//       {error ? (
+//         <Text>{error}</Text> // エラーメッセージを表示
+//       ) : imageUri ? (
+//         <Image source={{ uri: imageUri }} style={styles.image} />
 //       ) : (
-//         <>
-//           <Image source={{ uri: userData.imageUrl }} style={styles.image} />
-//           <Text>ユーザー名: {userData.name}</Text>
-//           <Text>自己紹介文: {userData.userText}</Text>
-//           <Text>タグ: {userData.tag.join(', ')}</Text>
-//           <Button title="編集" onPress={() => setEditMode(true)} />
-//         </>
+//         <Text>画像が見つかりません</Text>
 //       )}
 //     </View>
 //   );
@@ -155,37 +55,29 @@
 
 // const styles = StyleSheet.create({
 //   container: {
+//     alignItems: 'center',
+//     justifyContent: 'center',
 //     padding: 20,
 //   },
-//   input: {
-//     height: 40,
-//     borderColor: 'gray',
-//     borderWidth: 1,
-//     marginBottom: 10,
-//     paddingHorizontal: 10,
-//   },
-//   checkboxContainer: {
-//     flexDirection: 'row',
-//     alignItems: 'center',
-//   },
 //   image: {
-//     width: 100,
-//     height: 100,
-//     marginVertical: 10,
+//     width: 200,
+//     height: 200,
+//     borderRadius: 100,
 //   },
 // });
 
-// export default Profile;
+// export default UserImageDisplay;
 
 
 
-// import React, { useState, useEffect } from 'react';
-// import { View, Text, TextInput, Button, Image, CheckBox, StyleSheet } from 'react-native';
 
-// const index = () => {
-//   return (
-//     <View>aaa</View>
-//   )
-// }
+import React from 'react'
+import { View, Image, Text, StyleSheet, ActivityIndicator } from 'react-native';
 
-// export default index
+const index = () => {
+  return (
+    <View><Text>キタコレ</Text></View>
+  )
+}
+
+export default index
