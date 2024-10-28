@@ -11,40 +11,6 @@ const LastCheck = () => {
   const auth = getAuth();
   const user = auth.currentUser;
 
-  const addDataToFirestore = async (data) => {
-    try {
-      const userDocRef = doc(db, 'users', user.uid);
-      await setDoc(userDocRef, data, { merge: true });
-      console.log("プロフィールデータを追加しました。");
-    } catch (error) {
-      console.error("プロフィールデータの追加に失敗しました: ", error);
-    }
-  };
-
-  const handleSaveProfile = async () => {
-    let downloadURL = '';
-
-    if (userData.imageUri) {
-      const response = await fetch(userData.imageUri);
-      const blob = await response.blob();
-      const imageRef = ref(storage, `images/${user.uid}`);
-
-      await uploadBytes(imageRef, blob);
-      downloadURL = await getDownloadURL(imageRef);
-    }
-
-    const data = {
-      email: user.email,
-      imgUrl: downloadURL,
-      name: userData.name,
-      userId: userData.userId,
-      text: userData.text,
-      tagsId: userData.tagsId,
-    };
-
-    addDataToFirestore(data);
-  };
-
   return (
     <View style={s.container}>
 
@@ -108,7 +74,7 @@ const s = StyleSheet.create({
   decBer: {
     width: '100%',
     height: 1,
-    backgroundColor: '#000',
+    backgroundColor: '#fff',
     marginVertical: 3,
   },
   profileId: {
