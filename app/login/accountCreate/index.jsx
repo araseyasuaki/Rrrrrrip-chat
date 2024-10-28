@@ -50,11 +50,11 @@ const AccountCreate = () => {
   };
 
   const emailBtn = (email) => {
-    setUserData(prev => ({ ...prev, email: userData.email }))
+    setUserData(prev => ({ ...prev, email: email }))
   };
 
   const passwordBtn = (password) => {
-    setUserData(prev => ({ ...prev, password: userData.password }))
+    setUserData(prev => ({ ...prev, password: password }))
   };
 
   const arrowBtn = () => {
