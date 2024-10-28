@@ -9,7 +9,7 @@
       name: '',
       userId: '',
       userIdFilter: '',
-      text: 'よろしくお願いします！よろしくお願いします！よろしくお願いします！よろしくお願いします！よろしくお願いします！',
+      text: '',
       tagsId: '',
       tagList: [
         { id: 0, name: 'ポケモンGO', imgUrl: require(`../../assets/images/tagsIconA.png`), selected: false },
